@@ -1,0 +1,26 @@
+{
+  "name": "what-it-do",
+  "version": "1.0.0",
+  "description": "",
+  "icon": "src/assets/img/question-mark-circle-16.ico",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . WhatItDo --platform=win32 --arch=x64 --out=dist",
+    "build": "npm run package && electron-builder",
+    "make": "electron-forge make"
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.7.0",
+    "electron": "^33.4.4",
+    "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2"
+  },
+  "dependencies": {
+    "@electron-forge/maker-squirrel": "^7.7.0",
+    "electron-squirrel-startup": "^1.0.1",
+    "node-fetch": "^2.7.0"
+  }
+}
