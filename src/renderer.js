@@ -6,6 +6,10 @@ const submitBtn = document.getElementById('submitBtn');
 const statusDiv = document.getElementById('status');
 const imageOverlay = document.getElementById('imageOverlay');
 const successSound = document.getElementById('successSound');
+const activeLogsList = document.getElementById('activeLogsList');
+
+// Store active logs
+const activeLogs = new Map();
 
 // Add event listener for the submit button
 submitBtn.addEventListener('click', submitLog);
@@ -32,8 +36,8 @@ function submitLog() {
     // Clear input field
     logTextInput.value = '';
 
-    // Show loading status
-    // showStatus('Saving log entry...', '');
+    // Focus back on the input field
+    logTextInput.focus();
 }
 
 // Function to show status messages
@@ -89,24 +93,88 @@ function showOverlay(durationMs) {
     }, durationMs);
 }
 
+// Function to add a log item to the active logs list
+function addActiveLogItem(id, text, timestamp) {
+    // Create a new list item
+    const listItem = document.createElement('li');
+    listItem.setAttribute('data-id', id);
+    listItem.className = 'active-log-item';
+    
+    // Create text content
+    const textSpan = document.createElement('span');
+    textSpan.textContent = text;
+    
+    // Create end button
+    const endButton = document.createElement('button');
+    endButton.textContent = 'End';
+    endButton.className = 'end-button';
+    
+    // Add click event to end button
+    endButton.addEventListener('click', () => endLogItem(id, text, timestamp));
+    
+    // Append elements to the list item
+    listItem.appendChild(textSpan);
+    listItem.appendChild(endButton);
+    
+    // Append the list item to the active logs list
+    activeLogsList.appendChild(listItem);
+    
+    // Store the log information
+    activeLogs.set(id, { text, timestamp });
+}
+
+// Function to end a log item
+function endLogItem(id, text, timestamp) {
+    // Send request to main process to end the log
+    ipcRenderer.send('end-log', {
+        logText: text,
+        startTime: timestamp
+    });
+    
+    // Remove the item from the active logs list
+    const listItem = document.querySelector(`li[data-id="${id}"]`);
+    if (listItem) {
+        activeLogsList.removeChild(listItem);
+    }
+    
+    // Remove from active logs map
+    activeLogs.delete(id);
+}
+
 // Listen for log result from main process
 ipcRenderer.on('log-result', (event, result) => {
     if (result.success) {
-        // Show success message
-        //showStatus(`Log saved at ${result.timestamp} (Duration since last entry: ${result.duration})`, 'success');
-
-        // Display the overlay for 3 seconds
+        // Add the log to the active logs list
+        addActiveLogItem(result.id, result.text, result.timestamp);
+        
+        // Show overlay for 2 seconds
         showOverlay(2000);
-
+        
         // Play the success sound
         successSound.currentTime = 0; // Reset the audio to the beginning
         successSound.play().catch(err => {
             console.error('Error playing sound:', err);
         });
-
-        // Focus back on the input field for convenience
-        logTextInput.focus();
     } else {
         showStatus(`Error: ${result.error}`, 'error');
     }
 });
+
+// Listen for end log result from main process
+// ipcRenderer.on('end-log-result', (event, result) => {
+//     if (result.success) {
+//         // Show success message with duration
+//         showStatus(`Log ended successfully (Duration: ${result.durationSec} seconds)`, 'success');
+        
+//         // Show overlay for 2 seconds
+//         showOverlay(2000);
+        
+//         // Play the success sound
+//         successSound.currentTime = 0;
+//         successSound.play().catch(err => {
+//             console.error('Error playing sound:', err);
+//         });
+//     } else {
+//         showStatus(`Error: ${result.error}`, 'error');
+//     }
+// });

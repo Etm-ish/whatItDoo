@@ -3,28 +3,56 @@ body {
     padding: 20px;
     background-color: #f5f5f5;
     position: relative;
+    /* Hide scrollbar for body */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
 }
+
+body::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+}
+
 .container {
     max-width: 100%;
     background-color: white;
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Container scroll settings */
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    overflow: -moz-scrollbars-none !important;
 }
+
+.container::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
+}
+
 h1 {
     color: #333;
     margin-top: 0;
 }
+
 .input-group {
     margin-bottom: 15px;
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
 label {
     margin-bottom: 5px;
     display: block;
 }
+
 input[type="text"] {
     flex: 1;
     padding: 8px;
@@ -32,6 +60,7 @@ input[type="text"] {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 button {
     background-color: #4CAF50;
     color: white;
@@ -41,25 +70,30 @@ button {
     cursor: pointer;
     white-space: nowrap;
 }
+
 button:hover {
     background-color: #45a049;
 }
+
 #status {
     margin-top: 15px;
     padding: 10px;
     border-radius: 4px;
     display: none;
 }
+
 .success {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
+
 .error {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+
 .overlay {
     position: fixed;
     top: 0;
@@ -76,19 +110,23 @@ button:hover {
     transition: opacity 0.2s;
     overflow: hidden;
 }
+
 .overlay.active {
     opacity: 1;
     visibility: visible;
 }
+
 #successImageContainer {
     position: absolute;
     max-width: 500px;
     max-height: 300px;
     transform: translateX(-100vw);
 }
+
 .overlay.active #successImageContainer {
     animation: slideAndBounce 2s ease-out forwards;
 }
+
 #successImage {
     width: 100%;
     height: auto;
@@ -164,4 +202,97 @@ button:hover {
         filter: blur(0) brightness(1);
         transform: scale(1);
     }
+}
+
+.active-logs-container {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+.active-logs-container h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 16px;
+}
+
+#activeLogsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    /* Enhanced scrollbar hiding */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    overflow: -moz-scrollbars-none !important;
+}
+
+/* Enhanced hide scrollbar for all browsers */
+#activeLogsList::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
+}
+
+.active-log-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+}
+
+.active-log-item span {
+    flex-grow: 1;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.end-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.end-button:hover {
+    background-color: #c82333;
+}
+
+/* Additional scrollbar hiding for all elements */
+html {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    overflow: -moz-scrollbars-none !important;
+}
+
+html::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
+}
+
+/* Target any potential div that might show scrollbars */
+div {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+div::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
 }

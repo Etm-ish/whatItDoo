@@ -1,31 +1,37 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>What it do</title>
-    <link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
-<div class="container">
-    <div class="input-group">
-        <input type="text" id="logText" placeholder="Type your log message here">
-        <button id="submitBtn">It do</button>
-    </div>
-    <div id="status"></div>
-</div>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>What it do</title>
+        <link rel="stylesheet" href="assets/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="input-group">
+                <input type="text" id="logText" placeholder="Type your log message here">
+                <button id="submitBtn">It do</button>
+            </div>
+            <div id="status"></div>
+            
+            <!-- New section for active log entries -->
+            <div class="active-logs-container">
+                <h3>Running tasks</h3>
+                <ul id="activeLogsList"></ul>
+            </div>
+        </div>
 
-<!-- Overlay for success image -->
-<div id="imageOverlay" class="overlay">
-    <div id="popImageContainer">
-        <img id="popImage" src="./assets/img/pop1.gif" alt="Loading">
-    </div>
-    <div id="successImageContainer">
-        <img id="successImage" src="./assets/img/nice-removebg-r.png" alt="Success">
-    </div>
-</div>
+        <!-- Overlay for success image -->
+        <div id="imageOverlay" class="overlay">
+            <div id="popImageContainer">
+                <img id="popImage" src="./assets/img/pop1.gif" alt="Loading">
+            </div>
+            <div id="successImageContainer">
+                <img id="successImage" src="./assets/img/nice-removebg-r.png" alt="Success">
+            </div>
+        </div>
 
-<audio id="successSound" src="./assets/audio/click-nice.mp3"></audio>
+        <audio id="successSound" src="./assets/audio/click-nice.mp3"></audio>
 
-<script src="renderer.js"></script>
-</body>
+        <script src="renderer.js"></script>
+    </body>
 </html>

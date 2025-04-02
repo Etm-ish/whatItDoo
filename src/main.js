@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain,Menu, shell  } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
@@ -34,23 +34,38 @@ app.on('before-quit', (event) => {
 
 // Listen for log entry submissions from the renderer process
 ipcMain.on('submit-log', (event, logText) => {
-
     const randomChance = Math.floor(Math.random() * 100) + 1;
 
     if (logText.toLowerCase() === 'cena' || randomChance === 1) {
         handleCenaActivation();
     } else {
-        const result = writeLogEntry(logText);
-        event.reply('log-result', result)
+        const result = writeLogEntry("START: " + logText);
+        event.reply('log-result', {
+            ...result,
+            id: Date.now().toString(), // Add unique ID for the log entry
+            text: logText
+        });
     }
+});
 
-
+// Listen for end log entry submissions from the renderer process
+ipcMain.on('end-log', (event, data) => {
+    const { logText, startTime } = data;
+    
+    // Calculate duration from the startTime to now
+    const now = new Date();
+    const startDate = new Date(startTime);
+    const durationMs = now - startDate;
+    const durationSec = (durationMs / 1000).toFixed(2);
+    
+    const result = writeLogEntry(`END: ${logText} [Duration: ${durationSec} seconds]`);
+    event.reply('end-log-result', { ...result, durationSec });
 });
 
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 500,
-        height: 180,
+        height: 300, // Increased height to accommodate the list
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -99,46 +114,19 @@ function handleCenaActivation() {
 }
 
 function writeLogEntry(logText) {
-
     const logFile = path.join(logsDir, 'log.txt');
 
     // Format date in local time instead of UTC
     const now = new Date();
     const timestamp = now.toLocaleString();
 
-    let duration = "First entry";
-
-    // Check if log file exists to calculate duration since last entry
-    if (fs.existsSync(logFile)) {
-        try {
-            const fileContent = fs.readFileSync(logFile, 'utf8');
-            const lines = fileContent.trim().split('\n');
-
-            if (lines.length > 0) {
-                const lastLine = lines[lines.length - 1];
-                const lastTimestampMatch = lastLine.match(/\[(.*?)\]/);
-
-                if (lastTimestampMatch && lastTimestampMatch[1]) {
-                    const lastTimestamp = new Date(lastTimestampMatch[1]);
-                    const currentTimestamp = now;
-
-                    // Calculate duration in seconds
-                    const durationMs = currentTimestamp - lastTimestamp;
-                    duration = `${(durationMs / 1000).toFixed(2)} seconds`;
-                }
-            }
-        } catch (error) {
-            console.error('Error reading log file:', error);
-            duration = "Error calculating duration";
-        }
-    }
-
-    const logEntry = `[${timestamp}] ${logText} (Duration: ${duration})\n`;
+    // Just write the log entry without calculating duration from last entry
+    const logEntry = `[${timestamp}] ${logText}\n`;
 
     try {
         fs.appendFileSync(logFile, logEntry);
         console.log('Log entry saved successfully');
-        return { success: true, timestamp, duration };
+        return { success: true, timestamp };
     } catch (err) {
         console.error('Failed to save log entry:', err);
         return { success: false, error: err.message };
