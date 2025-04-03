@@ -8,12 +8,10 @@
     <body>
         <div class="container">
             <div class="input-group">
-                <input type="text" id="logText" placeholder="Type your log message here">
+                <input type="text" id="logText" placeholder="Enter what it do...">
                 <button id="submitBtn">It do</button>
             </div>
-            <div id="status"></div>
-            
-            <!-- New section for active log entries -->
+            <div id="status"></div>         
             <div class="active-logs-container">
                 <h3>Running tasks</h3>
                 <ul id="activeLogsList"></ul>
@@ -30,7 +28,7 @@
             </div>
         </div>
 
-        <audio id="successSound" src="./assets/audio/click-nice.mp3"></audio>
+        <audio id="clickNoiceSound" src="./assets/audio/click-nice.mp3"></audio>
 
         <script src="renderer.js"></script>
     </body>
