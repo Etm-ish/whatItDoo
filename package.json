@@ -2,7 +2,7 @@
   "name": "what-it-do",
   "version": "1.1.1",
   "description": "",
-  "icon": "src/assets/img/question-mark-circle-16.ico",
+  "icon": "src/assets/img/whatItDoIcon.ico",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",

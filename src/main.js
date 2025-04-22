@@ -2,9 +2,9 @@ const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
-const dayjs = require('dayjs')
-const duration = require('dayjs/plugin/duration')
-dayjs.extend(duration)
+const dayjs = require('dayjs');
+const duration = require('dayjs/plugin/duration');
+dayjs.extend(duration);
 
 // Create logs directory if it doesn't exist
 const logsDir = path.join(app.getPath('userData'), 'logs');
@@ -27,13 +27,12 @@ app.on('activate', function () {
 });
 
 app.on('before-quit', (event) => {
-    // Only execute this once
     if (isQuitting) return;
 
     console.log('Application is shutting down, writing final log...');
     writeLogEntry('Application closed');
     isQuitting = true;
-})
+});
 
 ipcMain.on('submit-log', (event, logText) => {
     const randomChance = Math.floor(Math.random() * 100) + 1;
@@ -44,22 +43,14 @@ ipcMain.on('submit-log', (event, logText) => {
         handleCenaActivation();
     } else {
         const result = writeLogEntry("START: " + logText);
-        event.reply('log-result', {
-            ...result,
-            id: Date.now().toString(),
-            text: logText
-        });
+        event.reply('log-result', result.item);
     }
 });
 
 ipcMain.on('end-log', (event, data) => {
-    const { logText, startTime } = data;
-    
-    const now = dayjs();
-    const startDate = dayjs(startTime)
-    const diff = now.diff(startDate)  
-    const duration = dayjs.duration(diff)
+    const { activeLogObject } = data;
 
+    let duration = dayjs.duration(activeLogObject.duration);
     let durationSec = '';
     
     if (duration.asSeconds() < 60) {
@@ -69,11 +60,11 @@ ipcMain.on('end-log', (event, data) => {
     } else {
         durationSec = `${Math.floor(duration.asHours())} hrs, ${duration.minutes()} mins, ${duration.seconds()} s`
     }
+    const result = writeLogEntry(`END: ${activeLogObject.text} [Duration: ${durationSec}]`);
+});
 
-    console.log(durationSec);
-    
-    const result = writeLogEntry(`END: ${logText} [Duration: ${durationSec}]`);
-    event.reply('end-log-result', { ...result, durationSec });
+ipcMain.on('log-message', (event, message) => {
+    console.log(message);
 });
 
 function createWindow() {
@@ -123,16 +114,15 @@ function handleCenaActivation() {
 
 function writeLogEntry(logText) {
     const logFile = path.join(logsDir, 'log.txt');
-
-    const now = new Date();
-    const timestamp = now.toLocaleString();
-
-    const logEntry = `[${timestamp}] ${logText}\n`;
+    const timestamp = dayjs();
+    const timestampText = timestamp.toLocaleString();
+    const logEntry = `[${timestampText}] ${logText}\n`;
 
     try {
         fs.appendFileSync(logFile, logEntry);
         console.log('Log entry saved successfully');
-        return { success: true, timestamp };
+        const item = createItem(true, timestampText, Date.now().toString(), logText)
+        return { item };
     } catch (err) {
         console.error('Failed to save log entry:', err);
         return { success: false, error: err.message };
@@ -165,4 +155,13 @@ function handleCliCommand(cliCommand) {
           break;
         default:
       }
+}
+
+function createItem(success, timestamp, id, text) {
+    return {
+        success: success,
+        timestamp: timestamp,
+        id: id,
+        text: text
+    };
 }

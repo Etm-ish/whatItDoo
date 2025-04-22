@@ -242,9 +242,20 @@ button:hover {
     align-items: center;
     padding: 8px 10px;
     margin-bottom: 5px;
-    background-color: #f5f5f5;
+    background-color: #0ba79f;
     border-radius: 4px;
-    border-left: 3px solid #007bff;
+    box-shadow: 3px 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.in-active-log-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background-color: #dadada;
+    border-radius: 4px;
+    height: 7px;
 }
 
 .active-log-item span {
@@ -255,6 +266,16 @@ button:hover {
     white-space: nowrap;
 }
 
+.in-active-log-item span {
+    flex-grow: 1;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #636363;
+}
+
 .end-button {
     background-color: #dc3545;
     color: white;
@@ -262,6 +283,17 @@ button:hover {
     border-radius: 4px;
     padding: 4px 10px;
     font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.in-active-log-item button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
