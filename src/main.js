@@ -30,7 +30,6 @@ app.on('before-quit', (event) => {
     if (isQuitting) return;
 
     console.log('Application is shutting down, writing final log...');
-    writeLogEntry('Application closed');
     isQuitting = true;
 });
 
@@ -49,18 +48,49 @@ ipcMain.on('submit-log', (event, logText) => {
 
 ipcMain.on('end-log', (event, data) => {
     const { activeLogObject } = data;
+    let durationSec = createDurationSec(activeLogObject.duration);
+    const result = writeLogEntry(`END:  ${activeLogObject.text} [Duration: ${durationSec}]`);
+});
 
-    let duration = dayjs.duration(activeLogObject.duration);
-    let durationSec = '';
-    
-    if (duration.asSeconds() < 60) {
-        durationSec = `${Math.floor(duration.asSeconds())}s`
-    } else if (duration.asMinutes() < 60) {
-        durationSec = `${Math.floor(duration.asMinutes())}mins, ${duration.seconds()}s`
-    } else {
-        durationSec = `${Math.floor(duration.asHours())} hrs, ${duration.minutes()} mins, ${duration.seconds()} s`
+ipcMain.on('end-day', (event, doneTaskList) => {
+    let itemSummary = new Array();
+    const logFile = path.join(logsDir, 'log.txt');
+
+    console.log(JSON.stringify(doneTaskList));
+
+    doneTaskList.forEach(item => {
+        const exists = itemSummary.some(inExistingItem => inExistingItem.text === item.text);
+        
+        if (exists) {
+            const existingItem = itemSummary.find(summaryItem => summaryItem.text === item.text);
+            existingItem.duration = existingItem.duration = item.duration;        
+        } else {
+            itemSummary.push(item);
+        }
+    });
+
+    try {
+        fs.appendFileSync(logFile, '------------- Day Summary -------------\n');
+    } catch (err) {
+        console.error('Failed to end day log entry:', err);
     }
-    const result = writeLogEntry(`END: ${activeLogObject.text} [Duration: ${durationSec}]`);
+
+    itemSummary.forEach(sumItem => {       
+        let durationSec = createDurationSec(sumItem.duration);
+        const logEntry = `| Task: ${sumItem.text} [Total duration: ${durationSec}]\n`;
+
+        try {
+            fs.appendFileSync(logFile, logEntry);
+        } catch (err) {
+            console.error('Failed to end day log entry:', err);
+        }
+    })
+
+    try {
+        fs.appendFileSync(logFile, '---------------------------------------\n');
+    } catch (err) {
+        console.error('Failed to end day log entry:', err);
+    }
 });
 
 ipcMain.on('log-message', (event, message) => {
@@ -69,7 +99,7 @@ ipcMain.on('log-message', (event, message) => {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 500,
+        width: 400,
         height: 300,
         webPreferences: {
             nodeIntegration: true,
@@ -115,7 +145,7 @@ function handleCenaActivation() {
 function writeLogEntry(logText) {
     const logFile = path.join(logsDir, 'log.txt');
     const timestamp = dayjs();
-    const timestampText = timestamp.toLocaleString();
+    const timestampText = timestamp.format('ddd, DD MMM YYYY HH:mm:ss');
     const logEntry = `[${timestampText}] ${logText}\n`;
 
     try {
@@ -129,34 +159,6 @@ function writeLogEntry(logText) {
     }
 }
 
-function handleCliCommand(cliCommand) {
-
-    let baseCommand;
-    let cliCommandList
-
-    if(cliCommand.includes('-')) {
-        cliCommandList = cliCommand.split("-");       
-        baseCommand = cliCommandList[0].trim();   
-    } else {
-        baseCommand = cliCommand.trim();
-    }
-
-    switch(baseCommand) {
-        case "cena":
-            handleCenaActivation();
-          break;
-        case "ontop":
-            const option = cliCommandList[1].trim();
-            if (option == "true") {
-                mainWindow.setAlwaysOnTop(true)
-            } else if (option == "false") {
-                mainWindow.setAlwaysOnTop(false)
-            }
-          break;
-        default:
-      }
-}
-
 function createItem(success, timestamp, id, text) {
     return {
         success: success,
@@ -164,4 +166,56 @@ function createItem(success, timestamp, id, text) {
         id: id,
         text: text
     };
+}
+
+function createDurationSec(inDuration) {
+
+    let duration = dayjs.duration(inDuration);
+    let durationSec = '';
+    
+    if (duration.asSeconds() < 60) {
+        durationSec = `${Math.floor(duration.asSeconds())}s`
+    } else if (duration.asMinutes() < 60) {
+        durationSec = `${Math.floor(duration.asMinutes())}mins, ${duration.seconds()}s`
+    } else {
+        durationSec = `${Math.floor(duration.asHours())} hrs, ${duration.minutes()} mins, ${duration.seconds()} s`
+    }
+    return durationSec;
+}
+
+function handleCliCommand(cliCommand) {
+
+    let baseCommand;
+    let cliCommandList
+    const valuesByOption = new Map();
+
+    if(cliCommand.includes('-')) {
+        cliCommandList = cliCommand.split('-');       
+        baseCommand = cliCommandList[0].trim();
+        cliCommandList.shift();
+    } else {
+        baseCommand = cliCommand.trim();
+    }
+
+    cliCommandList.forEach(command => {
+        let commandParts = command.split(' ');
+        valuesByOption.set(commandParts[0].trim(), commandParts[1].trim());
+    });
+
+
+    switch(baseCommand) {
+        case 'cena':
+            handleCenaActivation();
+            break;
+        case 'top':          
+            let value = valuesByOption.get('s');
+            mainWindow.setAlwaysOnTop(JSON.parse(value));
+            break;
+        case 'add':
+            let logtext = valuesByOption.get('t');
+            let durationText = valuesByOption.get('d');
+            const result = writeLogEntry(`ADDED: ${logtext} [Duration: ${durationText}]`);
+            break;
+        default:
+      }
 }

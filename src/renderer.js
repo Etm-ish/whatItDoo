@@ -7,6 +7,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // This won't directly catch the X button, but will run when X button triggers window close
     window.addEventListener('beforeunload', (event) => {
       closeAndLogOpenItems();
+      endDay();
     });
   });
 
@@ -19,6 +20,9 @@ const activeLogsList = document.getElementById('activeLogsList');
 
 submitBtn.addEventListener('click', submitLog);
 
+const endDayBtn = document.getElementById('endDayBtn');
+endDayBtn.addEventListener('click',  endDay); 
+
 logTextInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         submitLog();
@@ -26,6 +30,8 @@ logTextInput.addEventListener('keypress', (event) => {
 });
 
 const activeLogsMap = new Map();
+let doneTaskList = new Array();
+
 
 // Listen for log result from main process
 ipcRenderer.on('log-result', (event, result) => {
@@ -164,6 +170,15 @@ function addActiveLogItem(id, text, timestamp) {
             latestListItem.classList.replace('in-active-log-item', 'active-log-item');
         }
     }
+
+    doneTaskList.push({
+        text: activeLogObject.text, 
+        duration: activeLogObject.duration
+    });
+
+    let hhhh = JSON.stringify(doneTaskList);
+
+    ipcRenderer.send('log-message',hhhh);
  
     const listItem = document.querySelector(`li[data-id="${id}"]`);
     if (listItem) {
@@ -205,4 +220,8 @@ function createMapItem(text, timestamp, duration, state) {
         duration: duration,
         state: state
     };
+}
+
+function endDay() {
+    ipcRenderer.send('end-day', doneTaskList);
 }

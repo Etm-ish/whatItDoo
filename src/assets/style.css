@@ -1,12 +1,12 @@
-body {
+.outer-container {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    padding: 5px;
     background-color: #f5f5f5;
     position: relative;
-    /* Hide scrollbar for body */
     scrollbar-width: none;
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
+    border-radius: 5px;
 }
 
 body::-webkit-scrollbar {
@@ -17,16 +17,23 @@ body::-webkit-scrollbar {
 
 .container {
     max-width: 100%;
-    background-color: white;
-    padding: 15px;
+    background-color: rgb(224, 224, 224);
+    padding: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    /* Container scroll settings */
+
     max-height: 400px;
     overflow-y: auto;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     overflow: -moz-scrollbars-none !important;
+}
+
+.bottom-container {
+    max-width: 100%;
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .container::-webkit-scrollbar {
@@ -61,7 +68,7 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
-button {
+#submitBtn {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -69,6 +76,18 @@ button {
     border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
+}
+
+#endDayBtn {
+    background-color: #0ba79f;
+    color: black;
+    border: none;
+    padding: 9px 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
 }
 
 button:hover {
@@ -133,7 +152,6 @@ button:hover {
     animation: blurEffect 2s ease-out forwards;
 }
 
-/* CSS additions for style.css */
 #popImageContainer {
     position: absolute;
     max-width: 400px;
@@ -222,13 +240,11 @@ button:hover {
     margin: 0;
     max-height: 200px;
     overflow-y: auto;
-    /* Enhanced scrollbar hiding */
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     overflow: -moz-scrollbars-none !important;
 }
 
-/* Enhanced hide scrollbar for all browsers */
 #activeLogsList::-webkit-scrollbar {
     width: 0 !important;
     height: 0 !important;
@@ -253,7 +269,7 @@ button:hover {
     align-items: center;
     padding: 8px 10px;
     margin-bottom: 5px;
-    background-color: #dadada;
+    background-color: #c5c4c4;
     border-radius: 4px;
     height: 7px;
 }
@@ -288,7 +304,7 @@ button:hover {
 }
 
 .in-active-log-item button {
-    background-color: #dc3545;
+    background-color: #db5e6b;
     color: white;
     border: none;
     border-radius: 4px;
