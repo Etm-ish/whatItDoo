@@ -6,36 +6,66 @@
         <link rel="stylesheet" href="assets/style.css">
     </head>
     <body>
-        <div class="outer-container">
-            <div class="container">
-                <div class="input-group">
-                    <input type="text" id="logText" placeholder="Enter what it do...">
-                    <button id="submitBtn">It do</button>
-                </div>
-                <div id="status"></div>         
-                <div class="active-logs-container">
-                    <h3>Running tasks</h3>
-                    <ul id="activeLogsList"></ul>
-                </div>
-            </div>
-
-            <!-- Overlay for success image -->
-            <div id="imageOverlay" class="overlay">
-                <div id="popImageContainer">
-                    <img id="popImage" src="./assets/img/pop1.gif" alt="Loading">
-                </div>
-                <div id="successImageContainer">
-                    <img id="successImage" src="./assets/img/nice-removebg-r.png" alt="Success">
-                </div>
-            </div>
-
-
+        <div class="help-container">
+            <button id="help-btn">i</button>
         </div>
-        <div class="bottom-container">
-            <button id="endDayBtn">End day</button>
+        <div id="main-container">
+            <div class="outer-container">
+                <div class="container">
+                    <div class="input-group">
+                        <input type="text" id="logText" placeholder="Enter what it do...">
+                        <button id="submitBtn">It do</button>
+                    </div>
+                    <div id="status"></div>         
+                    <div class="active-logs-container">
+                        <h3>Running tasks</h3>
+                        <ul id="activeLogsList"></ul>
+                    </div>
+                </div>
+
+                <!-- Overlay for success image -->
+                <div id="imageOverlay" class="overlay">
+                    <div id="popImageContainer">
+                        <img id="popImage" src="./assets/img/pop1.gif" alt="Loading">
+                    </div>
+                    <div id="successImageContainer">
+                        <img id="successImage" src="./assets/img/nice-removebg-r.png" alt="Success">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="bottom-container">
+                <button id="endDayBtn">End day</button>
+            </div>
+        
+            <audio id="clickNoiceSound" src="./assets/audio/click-nice.mp3"></audio>
+            <script src="renderer.js"></script>
         </div>
-    
-        <audio id="clickNoiceSound" src="./assets/audio/click-nice.mp3"></audio>
-        <script src="renderer.js"></script>
+        <div id="info-container">
+
+            <h3>What it do CLI</h3>
+            <label>Format: '$wid [command] [options]'</label>
+            <p>Commands:</p>
+
+            top: set the window to always ontop
+            <ul>
+                <li>-t true</li>
+                <li>-f false</li>
+            </ul>
+
+            add
+            <ul>
+                <li>-t log text</li>
+                <li>-d duration text</li>
+            </ul>
+
+            logOptions
+            <ul>
+                <li>-t log timestamp</li>
+                <li>-s log task start entry</li>
+                <li>-a set all of the above to true</li>
+            </ul>
+        </div>
     </body>
 </html>

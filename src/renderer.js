@@ -12,16 +12,21 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
 const logTextInput = document.getElementById('logText');
+
 const submitBtn = document.getElementById('submitBtn');
+const endDayBtn = document.getElementById('endDayBtn');
+const helpBtn = document.getElementById('help-btn');
+
 const statusDiv = document.getElementById('status');
 const imageOverlay = document.getElementById('imageOverlay');
 const clickNoiceSound = document.getElementById('clickNoiceSound');
 const activeLogsList = document.getElementById('activeLogsList');
 
 submitBtn.addEventListener('click', submitLog);
-
-const endDayBtn = document.getElementById('endDayBtn');
 endDayBtn.addEventListener('click',  endDay); 
+
+
+helpBtn.addEventListener('click', showHelp);
 
 logTextInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
@@ -48,6 +53,18 @@ ipcRenderer.on('log-result', (event, result) => {
     } else {
         showStatus(`Error: ${result.error}`, 'error');
     }
+});
+
+ipcRenderer.on('focus-textbox', () => {
+    if (logTextInput) {
+        logTextInput.focus();
+    }
+  });
+
+document.addEventListener('keydown', (event) => {
+if (event.key === 'Escape') {
+    ipcRenderer.send('minimize-window');
+}
 });
 
 function submitLog() {
@@ -224,4 +241,21 @@ function createMapItem(text, timestamp, duration, state) {
 
 function endDay() {
     ipcRenderer.send('end-day', doneTaskList);
+}
+
+function showHelp() {
+
+    let infoContainer = document.getElementById('info-container');
+    let mainContainer = document.getElementById('main-container');
+
+    if(infoContainer.style.display == "block") {
+        infoContainer.style.display = "none";
+        mainContainer.style.display = "block";
+        helpBtn.textContent = "i";
+
+    } else {
+        infoContainer.style.display = "block";
+        mainContainer.style.display = "none";
+        helpBtn.textContent = "<";
+    }
 }

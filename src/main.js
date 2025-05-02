@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, globalShortcut, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
@@ -16,6 +16,9 @@ let mainWindow;
 let cenaWindow = null;
 let isQuitting = false;
 
+let logTimeStamp = true;
+let logStartText = true;
+
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', function () {
@@ -30,6 +33,7 @@ app.on('before-quit', (event) => {
     if (isQuitting) return;
 
     console.log('Application is shutting down, writing final log...');
+    globalShortcut.unregisterAll();
     isQuitting = true;
 });
 
@@ -49,7 +53,7 @@ ipcMain.on('submit-log', (event, logText) => {
 ipcMain.on('end-log', (event, data) => {
     const { activeLogObject } = data;
     let durationSec = createDurationSec(activeLogObject.duration);
-    const result = writeLogEntry(`END:  ${activeLogObject.text} [Duration: ${durationSec}]`);
+    const result = writeLogEntry(`TASK: ${activeLogObject.text} [Duration: ${durationSec}]`);
 });
 
 ipcMain.on('end-day', (event, doneTaskList) => {
@@ -93,6 +97,12 @@ ipcMain.on('end-day', (event, doneTaskList) => {
     }
 });
 
+ipcMain.on('minimize-window', () => {
+    if (mainWindow) {
+      mainWindow.minimize();
+    }
+  });
+
 ipcMain.on('log-message', (event, message) => {
     console.log(message);
 });
@@ -109,6 +119,18 @@ function createWindow() {
 
     Menu.setApplicationMenu(null);
     mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+    app.whenReady().then(() => {
+        const ret = globalShortcut.register('Alt+l', () => {
+          if (mainWindow.isMinimized()) mainWindow.restore();
+          mainWindow.focus();
+          mainWindow.webContents.send('focus-textbox');
+        });
+    
+        if (!ret) {
+          console.log('Registration failed');
+        }
+      });
 
     // Uncomment the line below to open DevTools for debugging
     // mainWindow.webContents.openDevTools();
@@ -146,11 +168,20 @@ function writeLogEntry(logText) {
     const logFile = path.join(logsDir, 'log.txt');
     const timestamp = dayjs();
     const timestampText = timestamp.format('ddd, DD MMM YYYY HH:mm:ss');
-    const logEntry = `[${timestampText}] ${logText}\n`;
+    let logEntry = '';
+
+    if (logTimeStamp) {
+        logEntry = `[${timestampText}]`;
+    }
+
+    logEntry += ` ${logText}\n`;
 
     try {
-        fs.appendFileSync(logFile, logEntry);
-        console.log('Log entry saved successfully');
+
+        if (logStartText) {
+            fs.appendFileSync(logFile, logEntry);
+            console.log('Log entry saved successfully');
+        }
         const item = createItem(true, timestampText, Date.now().toString(), logText)
         return { item };
     } catch (err) {
@@ -187,7 +218,6 @@ function handleCliCommand(cliCommand) {
 
     let baseCommand;
     let cliCommandList
-    const valuesByOption = new Map();
 
     if(cliCommand.includes('-')) {
         cliCommandList = cliCommand.split('-');       
@@ -197,25 +227,59 @@ function handleCliCommand(cliCommand) {
         baseCommand = cliCommand.trim();
     }
 
-    cliCommandList.forEach(command => {
-        let commandParts = command.split(' ');
-        valuesByOption.set(commandParts[0].trim(), commandParts[1].trim());
-    });
-
-
     switch(baseCommand) {
         case 'cena':
             handleCenaActivation();
             break;
-        case 'top':          
-            let value = valuesByOption.get('s');
-            mainWindow.setAlwaysOnTop(JSON.parse(value));
+
+        case 'top':
+            mainWindow.setAlwaysOnTop(cliCommandList[0] == 't');
             break;
+
         case 'add':
-            let logtext = valuesByOption.get('t');
-            let durationText = valuesByOption.get('d');
-            const result = writeLogEntry(`ADDED: ${logtext} [Duration: ${durationText}]`);
+            let logText = '';
+            let durationText = '';
+
+            cliCommandList.forEach(command => {
+                let commandParts = command.split(' ');
+
+                if (commandParts[0].trim() == 't') {
+                    logText = commandParts[1].trim();
+                }
+
+                if (commandParts.trim == 'd') {
+                    durationText = commandParts[1].trim();
+                }
+            });
+            const result = writeLogEntry(`ADDED: ${logText} [Duration: ${durationText}]`);
             break;
+
+        case 'logOptions':
+            let options = String(cliCommandList[0]);
+            let commandOptions = Array.from(options);
+            logTimeStamp = false;
+            logStartText = false;
+
+            commandOptions.forEach(command => {
+                switch(command) {
+                    case 't':
+                        logTimeStamp = true;
+                        break;
+                    
+                    case 's': 
+                        logStartText = true;
+                        break;
+                    
+                    case 'a':
+                        logTimeStamp = true;
+                        logStartText = true;
+                        break;
+                        
+                    default:                   
+                }            
+            });
+            break;
+
         default:
       }
 }

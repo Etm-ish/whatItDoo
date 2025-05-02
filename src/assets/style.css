@@ -36,6 +36,13 @@ body::-webkit-scrollbar {
     justify-content: flex-end;
 }
 
+.help-container {
+    max-width: 100%;
+    padding: 2px;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .container::-webkit-scrollbar {
     width: 0 !important;
     height: 0 !important;
@@ -343,4 +350,32 @@ div::-webkit-scrollbar {
     height: 0 !important;
     display: none !important;
     background: transparent !important;
+}
+
+#info-container {
+    display: none;
+}
+
+h3 {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+h4 {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+p {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+ul {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+#help-btn {
+    border-radius: 50%;
 }

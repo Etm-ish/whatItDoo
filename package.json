@@ -6,6 +6,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
+    "debug": "electron --inspect=5858 .",
     "package": "electron-packager . WhatItDo --platform=win32 --arch=x64 --out=dist",
     "build": "npm run package && electron-builder",
     "make": "electron-forge make"
@@ -22,6 +23,7 @@
     "@electron-forge/maker-squirrel": "^7.7.0",
     "dayjs": "^1.11.13",
     "electron-squirrel-startup": "^1.0.1",
+    "marked": "^15.0.11",
     "node-fetch": "^2.7.0"
   }
 }
