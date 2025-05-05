@@ -10,6 +10,8 @@ const logHandler = new LogHandler();
 let mainWindow;
 let isQuitting = false;
 
+let originalSize = { width: 400, height: 300 };
+
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', function () {
@@ -54,18 +56,32 @@ ipcMain.on('minimize-window', () => {
     }
   });
 
+ipcMain.on('resize-window', (event, data) => {
+    if (data.isHelpView) {
+        // Resize for help view, keeping the same width but adjusting height
+        // Add padding to ensure all content is visible
+        const padding = 50;
+        mainWindow.setSize(originalSize.width, data.helpHeight + padding);
+    } else {
+        // Return to original size
+        mainWindow.setSize(originalSize.width, originalSize.height);
+    }
+});
+
 ipcMain.on('log-message', (event, message) => {
     console.log(message);
 });
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 400,
-        height: 300,
+        width: originalSize.width,
+        height: originalSize.height,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
-        }
+            contextIsolation: false,
+            enableRemoteModule: true
+        },
+        resizable: true
     });
 
     Menu.setApplicationMenu(null);

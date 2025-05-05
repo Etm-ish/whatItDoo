@@ -13,30 +13,43 @@ window.addEventListener('DOMContentLoaded', () => {
       closeAndLogOpenItems();
       endDay();
     });
-  });
 
-const logTextInput = document.getElementById('logText');
-
-const submitBtn = document.getElementById('submitBtn');
-// const endDayBtn = document.getElementById('endDayBtn');
-const helpBtn = document.getElementById('help-btn');
-
-const statusDiv = document.getElementById('status');
-const imageOverlay = document.getElementById('imageOverlay');
-const clickNoiceSound = document.getElementById('clickNoiceSound');
-const activeLogsList = document.getElementById('activeLogsList');
-
-submitBtn.addEventListener('click', submitLog);
-// endDayBtn.addEventListener('click',  endDay); 
-
-
-helpBtn.addEventListener('click', showHelp);
-
-logTextInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        submitLog();
-    }
+    // Initialize UI elements after DOM is loaded
+    initializeUI();
 });
+
+let logTextInput;
+let submitBtn;
+let helpBtn;
+let backBtn;
+let statusDiv;
+let imageOverlay;
+let clickNoiceSound;
+let activeLogsList;
+
+function initializeUI() {
+    logTextInput = document.getElementById('logText');
+    submitBtn = document.getElementById('submitBtn');
+    helpBtn = document.getElementById('help-btn');
+    backBtn = document.getElementById('back-btn');
+    statusDiv = document.getElementById('status');
+    imageOverlay = document.getElementById('imageOverlay');
+    clickNoiceSound = document.getElementById('clickNoiceSound');
+    activeLogsList = document.getElementById('activeLogsList');
+
+    // Add event listeners after elements are found
+    if (submitBtn) submitBtn.addEventListener('click', submitLog);
+    if (helpBtn) helpBtn.addEventListener('click', showHelp);
+    if (backBtn) backBtn.addEventListener('click', hideHelp);
+
+    if (logTextInput) {
+        logTextInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                submitLog();
+            }
+        });
+    }
+}
 
 const activeLogsMap = new Map();
 let doneTaskList = new Array();
@@ -49,10 +62,12 @@ ipcRenderer.on('log-result', (event, result) => {
 
         showOverlay(2000);
         
-        clickNoiceSound.currentTime = 0;
-        clickNoiceSound.play().catch(err => {
-            console.error('Error playing sound:', err);
-        });
+        if (clickNoiceSound) {
+            clickNoiceSound.currentTime = 0;
+            clickNoiceSound.play().catch(err => {
+                console.error('Error playing sound:', err);
+            });
+        }
     } else {
         showStatus(`Error: ${result.error}`, 'error');
     }
@@ -62,15 +77,17 @@ ipcRenderer.on('focus-textbox', () => {
     if (logTextInput) {
         logTextInput.focus();
     }
-  });
+});
 
 document.addEventListener('keydown', (event) => {
-if (event.key === 'Escape') {
-    ipcRenderer.send('minimize-window');
-}
+    if (event.key === 'Escape') {
+        ipcRenderer.send('minimize-window');
+    }
 });
 
 function submitLog() {
+    if (!logTextInput) return;
+    
     const logText = logTextInput.value.trim();
 
     if (logText === '') {
@@ -84,6 +101,8 @@ function submitLog() {
 }
 
 function showStatus(message, type) {
+    if (!statusDiv) return;
+    
     statusDiv.textContent = message;
     statusDiv.style.display = 'block';
 
@@ -97,11 +116,15 @@ function showStatus(message, type) {
 }
 
 function showOverlay(durationMs) {
+    if (!imageOverlay) return;
+    
     // Reset animations by removing and re-adding the elements
     const popContainer = document.getElementById('popImageContainer');
     const popImage = document.getElementById('popImage');
     const successContainer = document.getElementById('successImageContainer');
     const successImage = document.getElementById('successImage');
+
+    if (!popContainer || !popImage || !successContainer || !successImage) return;
 
     // Clone the elements to reset their animations
     const newPopContainer = popContainer.cloneNode(false);
@@ -134,6 +157,7 @@ function showOverlay(durationMs) {
 }
 
 function addActiveLogItem(id, text, timestamp) {
+    if (!activeLogsList) return;
 
     const listItem = document.createElement('li');
     listItem.setAttribute('data-id', id);
@@ -172,7 +196,8 @@ function addActiveLogItem(id, text, timestamp) {
     activeLogsMap.set(id, createTaskItem(text, timestamp, 0, 'open'));  
 }
 
- function endLogItem(id, activeLogObject) {
+function endLogItem(id, activeLogObject) {
+    if (!activeLogObject) return;
     
     activeLogsMap.delete(id);
 
@@ -183,11 +208,15 @@ function addActiveLogItem(id, text, timestamp) {
 
         if(activeLogsMap.size > 0) {
             let latestKey = findLatestTimestamp(activeLogsMap);
-            activeLogsMap.get(latestKey).state = 'open';
-            activeLogsMap.get(latestKey).timestamp = dayjs();
-    
-            const latestListItem = document.querySelector(`li[data-id="${latestKey}"]`);
-            latestListItem.classList.replace('in-active-log-item', 'active-log-item');
+            if (latestKey && activeLogsMap.get(latestKey)) {
+                activeLogsMap.get(latestKey).state = 'open';
+                activeLogsMap.get(latestKey).timestamp = dayjs();
+        
+                const latestListItem = document.querySelector(`li[data-id="${latestKey}"]`);
+                if (latestListItem) {
+                    latestListItem.classList.replace('in-active-log-item', 'active-log-item');
+                }
+            }
         }
     }
 
@@ -197,7 +226,7 @@ function addActiveLogItem(id, text, timestamp) {
     });
  
     const listItem = document.querySelector(`li[data-id="${id}"]`);
-    if (listItem) {
+    if (listItem && activeLogsList) {
         activeLogsList.removeChild(listItem);
     }
 
@@ -206,27 +235,26 @@ function addActiveLogItem(id, text, timestamp) {
     });
 }
 
-function closeAndLogOpenItems () {
+function closeAndLogOpenItems() {
     activeLogsMap.forEach((value, key) => {
-        endLogItem(key,value)
-    })
-};
+        endLogItem(key, value);
+    });
+}
 
 function findLatestTimestamp(activeLogsMap) {
     let latestTimestamp = 0;
     let latestKey = null;
-    let latestValue = null
+    let latestValue = null;
 
     for (const [key, value] of activeLogsMap) {
-
         const timestamp = dayjs(value.timestamp);       
         if (timestamp > latestTimestamp) {
           latestTimestamp = timestamp;
           latestKey = key;
           latestValue = value;
         }
-      }
-      return latestKey;
+    }
+    return latestKey;
 }
 
 function createTaskItem(text, timestamp, duration, state) {
@@ -243,18 +271,33 @@ function endDay() {
 }
 
 function showHelp() {
-
     let infoContainer = document.getElementById('info-container');
     let mainContainer = document.getElementById('main-container');
+    
+    if (!infoContainer || !mainContainer) return;
+    
+    infoContainer.style.display = "block";
+    mainContainer.style.display = "none";
+    
+    // Calculate the height needed for the help content
+    const helpContentHeight = infoContainer.scrollHeight;
+    
+    // Send message to resize window to fit help content
+    ipcRenderer.send('resize-window', { 
+        isHelpView: true, 
+        helpHeight: helpContentHeight 
+    });
+}
 
-    if(infoContainer.style.display == "block") {
-        infoContainer.style.display = "none";
-        mainContainer.style.display = "block";
-        helpBtn.textContent = "i";
-
-    } else {
-        infoContainer.style.display = "block";
-        mainContainer.style.display = "none";
-        helpBtn.textContent = "<";
-    }
+function hideHelp() {
+    let infoContainer = document.getElementById('info-container');
+    let mainContainer = document.getElementById('main-container');
+    
+    if (!infoContainer || !mainContainer) return;
+    
+    infoContainer.style.display = "none";
+    mainContainer.style.display = "block";
+    
+    // Send message to resize window back to original size
+    ipcRenderer.send('resize-window', { isHelpView: false });
 }

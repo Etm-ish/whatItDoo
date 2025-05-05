@@ -85,18 +85,6 @@ input[type="text"] {
     white-space: nowrap;
 }
 
-#endDayBtn {
-    background-color: #0ba79f;
-    color: black;
-    border: none;
-    padding: 9px 9px;
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    font-weight: 600;
-    font-family: Arial, sans-serif;
-}
-
 button:hover {
     background-color: #45a049;
 }
@@ -354,6 +342,13 @@ div::-webkit-scrollbar {
 
 #info-container {
     display: none;
+    font-family: Consolas;
+    padding: 15px;
+    background-color: rgb(224, 224, 224);
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    max-height: none; /
 }
 
 h3 {
@@ -376,6 +371,47 @@ ul {
     margin-top: 0;
 }
 
-#help-btn {
+/* #help-btn {
     border-radius: 50%;
+} */
+
+.header-with-help, .header-with-back {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.header-with-help h3, .header-with-back h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.icon-btn {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    padding: 0;
+}
+
+.icon-btn:hover {
+    background-color: #45a049;
+}
+
+#back-btn {
+    background-color: #f44336;
+}
+
+#back-btn:hover {
+    background-color: #d32f2f;
 }
