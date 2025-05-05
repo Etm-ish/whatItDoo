@@ -3,6 +3,10 @@ const dayjs = require('dayjs');
 const duration = require('dayjs/plugin/duration');
 dayjs.extend(duration);
 
+// const TasksHandler = require('./classes/TasksHandler');
+
+// const taskHandler = new TasksHandler();
+
 window.addEventListener('DOMContentLoaded', () => {
     // This won't directly catch the X button, but will run when X button triggers window close
     window.addEventListener('beforeunload', (event) => {
@@ -14,7 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
 const logTextInput = document.getElementById('logText');
 
 const submitBtn = document.getElementById('submitBtn');
-const endDayBtn = document.getElementById('endDayBtn');
+// const endDayBtn = document.getElementById('endDayBtn');
 const helpBtn = document.getElementById('help-btn');
 
 const statusDiv = document.getElementById('status');
@@ -23,7 +27,7 @@ const clickNoiceSound = document.getElementById('clickNoiceSound');
 const activeLogsList = document.getElementById('activeLogsList');
 
 submitBtn.addEventListener('click', submitLog);
-endDayBtn.addEventListener('click',  endDay); 
+// endDayBtn.addEventListener('click',  endDay); 
 
 
 helpBtn.addEventListener('click', showHelp);
@@ -41,8 +45,7 @@ let doneTaskList = new Array();
 // Listen for log result from main process
 ipcRenderer.on('log-result', (event, result) => {
     if (result.success) {
-        let displayText = result.text.split(':');
-        addActiveLogItem(result.id, displayText[1], result.timestamp);
+        addActiveLogItem(result.id, result.text, result.timestamp);
 
         showOverlay(2000);
         
@@ -166,7 +169,7 @@ function addActiveLogItem(id, text, timestamp) {
             }
         });
     }
-    activeLogsMap.set(id, createMapItem(text, timestamp, 0, 'open'));  
+    activeLogsMap.set(id, createTaskItem(text, timestamp, 0, 'open'));  
 }
 
  function endLogItem(id, activeLogObject) {
@@ -192,10 +195,6 @@ function addActiveLogItem(id, text, timestamp) {
         text: activeLogObject.text, 
         duration: activeLogObject.duration
     });
-
-    let hhhh = JSON.stringify(doneTaskList);
-
-    ipcRenderer.send('log-message',hhhh);
  
     const listItem = document.querySelector(`li[data-id="${id}"]`);
     if (listItem) {
@@ -230,7 +229,7 @@ function findLatestTimestamp(activeLogsMap) {
       return latestKey;
 }
 
-function createMapItem(text, timestamp, duration, state) {
+function createTaskItem(text, timestamp, duration, state) {
     return {
         text: text,
         timestamp: timestamp,
