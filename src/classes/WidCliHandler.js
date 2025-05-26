@@ -45,11 +45,11 @@ class WidCliHandler {
                         logText = commandParts[1].trim();
                     }
     
-                    if (commandParts[0].trim == 'd') {
+                    if (commandParts[0].trim() == 'd') {
                         durationText = commandParts[1].trim();
                     }
                 });
-                const result = writeLogEntry(`ADDED: ${logText} [Duration: ${durationText}]`);
+                const result = logHandler.writeLogEntry('ADDED: ',`${logText} [Duration: ${durationText}]`, '');
                 break;
     
             case 'logOptions':
